@@ -1,0 +1,1033 @@
+openapi: 3.0.0
+info:
+  title: Rose Management API
+  description: Rose Management API (모든 요청은 POST 방식을 사용합니다.)
+  version: "10"
+
+servers:
+  - url: "https://{device_ip}:9283"
+
+paths:
+  /debug_info_get:
+    post:
+      tags:
+        - "Device"
+      summary: "기기 디버그 정보 조회"
+      description: "모델명, 시스템 버전, 오디오 버전, 네트워크 상태 등 기기의 상세 정보를 조회합니다."
+      responses:
+        '200':
+          description: "조회 성공"
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/CommonResponse'
+                  - type: object
+                    properties:
+                      info:
+                        $ref: '#/components/schemas/DebugInfo'
+
+  /symphony_install_get:
+    post:
+      tags:
+        - "Symphony"
+      summary: "Symphony 앱 설치 상태 조회"
+      description: "기기에 Symphony 앱이 설치 및 다운로드되어 있는지 확인합니다."
+      responses:
+        '200':
+          description: "조회 성공"
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/CommonResponse'
+                  - type: object
+                    properties:
+                      isSymphonyDownLoad:
+                        type: boolean
+                        description: "Symphony 다운로드 여부"
+                        example: true
+
+  /symphony_install_set:
+    post:
+      tags:
+        - "Symphony"
+      summary: "Symphony 앱 설치 실행"
+      description: "Symphony 앱의 설치를 시작합니다."
+      responses:
+        '200':
+          description: "명령 전달 성공"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommonResponse'
+
+  /symphony_download_path_set:
+    post:
+      tags:
+        - "Symphony"
+      summary: "Symphony 앱 다운로드 경로 설정"
+      description: "Symphony 앱의 다운로드 경로를 설정합니다."
+      requestBody:
+        description: "설정할 다운로드 경로 정보"
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                path:
+                  type: string
+                  description: "설정할 폴더 또는 파일의 전체 경로"
+                  example: "/storage/emulated/0/Download/Symphony"
+      responses:
+        '200':
+          description: "명령 전달 성공"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommonResponse'
+
+  /symphony_premium_get_subtitle:
+    post:
+      tags:
+        - "Symphony"
+      summary: "Symphony 자막 정보 조회"
+      description: "현재 설정된 자막 언어와 선택 가능한 자막 목록을 조회합니다."
+      responses:
+        '200':
+          description: "조회 성공"
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/CommonResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/SymphonySubtitleData'
+
+  /symphony_premium_set_subtitle:
+    post:
+      tags:
+        - "Symphony"
+      summary: "Symphony 자막 설정"
+      description: "Symphony 재생 시 사용할 자막 언어를 설정합니다."
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                subtitle:
+                  type: string
+                  description: "설정할 자막 언어 코드"
+                  example: "ko"
+      responses:
+        '200':
+          description: "설정 성공"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommonResponse'
+
+  /symphony_premium_get_rose_config:
+    post:
+      tags:
+        - "Symphony"
+      summary: "Symphony 설정 조회"
+      description: "Symphony 앱의 언어 설정 등 주요 환경 설정 정보를 조회합니다."
+      responses:
+        '200':
+          description: "조회 성공"
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/CommonResponse'
+                  - type: object
+                    properties:
+                      success:
+                        type: boolean
+                        description: "설정 조회 성공 여부"
+                        example: true
+                      language:
+                        type: string
+                        description: "설정된 언어 코드 (ISO 639-1 형식)"
+                        example: "ko-KR"
+
+  /symphony_premium_get_rose_storage_path:
+    post:
+      tags:
+        - "Symphony"
+      summary: "Symphony 저장소 경로 조회"
+      description: "Symphony 앱에서 사용하는 현재 저장소(캐시 등)의 절대 경로를 조회합니다."
+      responses:
+        '200':
+          description: "조회 성공"
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/CommonResponse'
+                  - type: object
+                    properties:
+                      success:
+                        type: boolean
+                        description: "경로 조회 성공 여부"
+                        example: true
+                      path:
+                        type: string
+                        description: "설정된 저장소 절대 경로"
+                        example: "/storage/SJHAN/SymphonyCache"
+  
+  /symphony_premium_get_contents:
+    post:
+      tags:
+        - "Symphony"
+      summary: "Symphony 콘텐츠 목록 조회"
+      description: "다운로드 대기 중인 콘텐츠와 이미 다운로드된 콘텐츠 목록 및 저장 경로를 조회합니다."
+      responses:
+        '200':
+          description: "조회 성공"
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/CommonResponse'
+                  - type: object
+                    properties:
+                      success:
+                        type: boolean
+                        description: "조회 성공 여부"
+                        example: true
+                      path:
+                        type: string
+                        description: "콘텐츠 저장 경로"
+                        example: "/storage/SJHAN/SymphonyCache"
+                      downloadWatingContentIds:
+                        type: array
+                        description: "다운로드 대기 중인 콘텐츠 ID 목록"
+                        items:
+                          type: integer
+                        example: [3, 2]
+                      downloadedContents:
+                        type: array
+                        description: "다운로드 완료된 콘텐츠 상세 정보"
+                        items:
+                          $ref: '#/components/schemas/SymphonyDownloadedContent'
+
+  /symphony_premium_error_dialog_close:
+    post:
+      tags:
+        - "Symphony"
+      summary: "Symphony 에러 다이얼로그 닫기"
+      description: "Symphony 앱 화면에 표시된 에러 알림창이나 다이얼로그를 원격으로 닫습니다."
+      responses:
+        '200':
+          description: "명령 전달 성공"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommonResponse'
+
+  /symphony_premium_get_queue:
+    post:
+      tags:
+        - "Symphony"
+      summary: "Symphony 재생 큐 조회"
+      description: "현재 재생 중인 콘텐츠 ID와 재생 대기열(큐)에 포함된 콘텐츠 ID 목록을 조회합니다."
+      responses:
+        '200':
+          description: "조회 성공"
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/CommonResponse'
+                  - type: object
+                    properties:
+                      currentContentId:
+                        type: integer
+                        description: "현재 재생 중인 콘텐츠 고유 ID"
+                        example: 36
+                      contentIds:
+                        type: array
+                        description: "재생 대기열에 포함된 전체 콘텐츠 ID 목록"
+                        items:
+                          type: integer
+                        example: [36]
+
+  /symphony_premium_cancel_download:
+    post:
+      tags:
+        - "Symphony"
+      summary: "Symphony 다운로드 취소"
+      description: "현재 진행 중이거나 대기 중인 모든 Symphony 콘텐츠의 다운로드를 취소합니다."
+      responses:
+        '200':
+          description: "명령 전달 성공"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommonResponse'
+
+  /symphony_premium_continue_dialog_close:
+    post:
+      tags:
+        - "Symphony"
+      summary: "Symphony 이어보기 다이얼로그 닫기"
+      description: "Symphony 앱의 콘텐츠 이어보기 알림창을 닫고, 이어보기 진행 여부를 전달합니다."
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                isContinue:
+                  type: boolean
+                  description: "이어보기 진행 여부 (true: 이어하기, false: 처음부터 재생 또는 취소)"
+                  example: true
+      responses:
+        '200':
+          description: "명령 전달 성공"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommonResponse'
+
+  /symphony_premium_retry_download:
+    post:
+      tags:
+        - "Symphony"
+      summary: "Symphony 다운로드 재시도"
+      description: "다운로드가 실패했거나 중단된 특정 Symphony 콘텐츠의 다운로드를 다시 시도합니다."
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                contentId:
+                  type: integer
+                  description: "재시도할 콘텐츠의 고유 ID"
+                  example: 123123
+      responses:
+        '200':
+          description: "명령 전달 성공"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommonResponse'
+
+  /qobuz_download_item:
+    post:
+      tags:
+        - "Qobuz"
+      summary: "Qobuz 트랙 다운로드"
+      description: "Qobuz의 특정 트랙 정보를 전달하여 다운로드를 실행합니다."
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/QobuzDownloadRequest'
+      responses:
+        '200':
+          description: "다운로드 명령 성공"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommonResponse'
+    
+  /qobuz_download_state_get:
+    post:
+      tags:
+        - "Qobuz"
+      summary: "Qobuz 다운로드 상태 조회"
+      description: "현재 진행 중이거나 완료된 Qobuz 트랙의 다운로드 상태 목록을 가져옵니다."
+      responses:
+        '200':
+          description: "조회 성공"
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/CommonResponse'
+                  - type: object
+                    properties:
+                      info:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/QobuzDownloadState'
+
+  /qobuz_download_state_clear:
+    post:
+      tags:
+        - "Qobuz"
+      summary: "Qobuz 다운로드 상태 정리"
+      description: "Qobuz 다운로드 상태에서 완료된 Qobuz 트랙의 다운로드 상태를 정리합니다."
+      responses:
+        '200':
+          description: "명령 전달 성공"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommonResponse'
+
+  /qobuz_download_retry:
+    post:
+      tags:
+        - "Qobuz"
+      summary: "Qobuz 다운로드 재시도"
+      description: "Qobuz 다운로드 실패한 Qobuz 트랙들을 다시 다운로드 합니다."
+      responses:
+        '200':
+          description: "명령 전달 성공"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommonResponse'
+
+  /kugou_get_session_info:
+    post:
+      tags:
+        - "Kugou"
+      summary: "Kugou 계정 정보 가져오기"
+      description: "Kugou 계정 정보를 가져옵니다."
+      responses:
+        '200':
+          description: "조회 성공"
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/CommonResponse'
+                  - type: object
+                    properties:
+                      expire:
+                        type: integer
+                        description: "토큰 만료 시간 (0은 무제한 또는 만료 없음)"
+                        example: 0
+                      token:
+                        type: string
+                        description: "Kugou 인증 토큰"
+                        example: "NK0QGBC4ASE9Q5P5F61R4GCQT26HLCSALI37TP0RHKICEQRP0RKCRAK9O2FQSBVJ42S1COLUHR5OSSHLA7J105OZ"
+                      userId:
+                        type: string
+                        description: "사용자 고유 ID"
+                        example: "5FD9DF74999D2C64FF1437E06132F902"
+
+  /kugou_set_session_info:
+   post:
+      tags:
+        - "Kugou"
+      summary: "Kugou 계정 정보 설정하기"
+      description: "Kugou 계정 정보를 설정합니다."
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                KUGOU_LoginUserItem:
+                  type: object
+                  properties:
+                    deviceId:
+                      type: string
+                      description: "기기 고유 ID"
+                      example: "795535"
+                    userId:
+                      type: string
+                      description: "Kugou 사용자 ID"
+                      example: "5FD9DF74999D2C64FF1437E06132F902"
+                    token:
+                      type: string
+                      description: "인증 토큰"
+                      example: "NK0QGBC4ASE9Q5P5F61R4GCQT26HLCSALI37TP0RHKICEQRP0RKCRAK9O2FQSBVJ42S1COLUHR5OSSHLA7J105OZ"
+      responses:
+        '200':
+          description: "명령 전달 성공"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommonResponse'
+  
+  /kugouPlay_set_queue:
+    post:
+      tags:
+        - "Kugou"
+      summary: "Kugou 재생 큐 설정"
+      description: "Kugou 트랙 리스트를 전달하여 재생 큐를 설정하고 재생합니다."
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/KugouSetQueueRequest'
+      responses:
+        '200':
+          description: "명령 전달 성공"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommonResponse'
+
+  /get_kugou_quality_setting:
+    post:
+      tags:
+        - "Kugou"
+      summary: "Kugou 음질 설정 조회"
+      description: "현재 설정된 Kugou 스트리밍 및 다운로드 음질 값을 조회합니다."
+      responses:
+        '200':
+          description: "조회 성공"
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/CommonResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          quality:
+                            type: integer
+                            description: "현재 설정된 음질 값 (0: 기본, 1: 고음질 등)"
+                            example: 0
+
+  /set_kugou_quality_setting:
+    post:
+      tags:
+        - "Kugou"
+      summary: "Kugou 음질 설정 변경"
+      description: "Kugou 스트리밍 및 다운로드 시 사용할 음질 값을 설정합니다."
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                quality:
+                  type: integer
+                  description: "변경할 음질 값"
+                  example: 0
+      responses:
+        '200':
+          description: "설정 성공"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommonResponse'
+
+  /get_kugou_my_playlist:
+    post:
+      tags:
+        - "Kugou"
+      summary: "Kugou 내 플레이리스트 조회"
+      description: "사용자의 Kugou 계정에 저장된 플레이리스트 목록을 페이징하여 조회합니다."
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                page:
+                  type: integer
+                  description: "조회할 페이지 번호"
+                  example: 1
+                size:
+                  type: integer
+                  description: "페이지당 노출 개수"
+                  example: 50
+      responses:
+        '200':
+          description: "조회 성공"
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/CommonResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/KugouPlaylistData'
+
+  /get_vlc_sub_option:
+    post:
+      tags:
+        - "Video"
+      summary: "VLC 자막 인코딩 옵션 목록 조회"
+      description: "지원하는 자막 인코딩 목록과 현재 선택된 인코딩 위치(Index)를 조회합니다."
+      responses:
+        '200':
+          description: "조회 성공"
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/CommonResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/VlcSubOptionData'
+
+  /set_vlc_sub_option:
+    post:
+      tags:
+        - "Video"
+      summary: "VLC 자막 인코딩 옵션 설정"
+      description: "VLC 플레이어의 자막 인코딩 방식을 지정된 인덱스 위치 값으로 설정합니다."
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                position:
+                  type: integer
+                  description: "선택할 자막 인코딩 옵션의 인덱스"
+                  example: 3
+      responses:
+        '200':
+          description: "명령 전달 성공"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommonResponse'
+
+  /video_queue_delete:
+    post:
+      tags:
+        - "Video"
+      summary: "비디오 재생 큐 항목 삭제"
+      description: "재생 대기열(큐)에서 지정된 인덱스 위치의 비디오 항목들을 삭제합니다."
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                arr:
+                  type: array
+                  description: "삭제할 큐 아이템의 인덱스 목록"
+                  items:
+                    type: integer
+                  example: [0, 2]
+      responses:
+        '200':
+          description: "삭제 성공"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommonResponse'
+
+  /tube_audio_track_get:
+    post:
+      tags:
+        - "RoseTube"
+      summary: "RoseTube 오디오 트랙 정보 조회"
+      description: "현재 재생 중인 영상의 선택 가능한 다중 오디오 트랙 목록과 현재 설정된 오디오 언어를 조회합니다. (audioTrack 데이터가 1개 이하면 UI 상에서 오디오 트랙 선택 아이콘을 숨김 처리해야 합니다.)"
+      responses:
+        '200':
+          description: "조회 성공"
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/CommonResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/RoseTubeAudioTrackData'
+  /tube_audio_track_set:
+    post:
+      tags:
+        - "RoseTube"
+      summary: "RoseTube 오디오 트랙 언어 설정"
+      description: "재생 중인 영상의 오디오 트랙 언어를 지정된 언어 코드로 변경합니다."
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                lang:
+                  type: string
+                  description: "설정할 오디오 트랙 언어 코드"
+                  example: "ko"
+      responses:
+        '200':
+          description: "명령 전달 성공"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommonResponse'
+
+  /tv.lyrics.show.set:
+    post:
+      tags:
+        - "Device"
+      summary: "TV 가사 표시 여부 설정"
+      description: "TV 화면에 가사를 표시할지 여부를 설정합니다."
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                isShow:
+                  type: boolean
+                  description: "가사 노출 여부 (true: 표시, false: 숨김)"
+                  example: true
+      responses:
+        '200':
+          description: "명령 전달 성공"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommonResponse'
+
+
+
+components:
+  schemas:
+    CommonResponse:
+      type: object
+      properties:
+        code:
+          type: string
+          description: "결과 코드"
+          example: "G0000"
+        status:
+          type: object
+          properties:
+            errorCd:
+              type: string
+              description: "에러 코드"
+              example: ""
+            errorMsg:
+              type: string
+              description: "에러 메시지"
+              example: ""
+            outs:
+              type: string
+              description: "출력 결과 상태"
+              example: "OK"
+        version:
+          type: string
+          description: "앱 또는 데이터 버전"
+          example: "1.0.9"
+
+    DebugInfo:
+      type: object
+      properties:
+        audio_version:
+          type: string
+          example: "XMOS 3151"
+        current_time:
+          type: string
+          example: "2026-03-17 11:17:21.257 +0900"
+        input:
+          type: string
+          example: "Local"
+        language:
+          type: string
+          example: "ko-KR"
+        model:
+          type: string
+          example: "RS520"
+        network:
+          type: string
+          example: "Ethernet"
+        output:
+          type: string
+          example: "Analog(AMP + PREAMP)"
+        rose_amp:
+          type: string
+          example: "null"
+        rose_amp_volume_select:
+          type: boolean
+          example: false
+        rose_id:
+          type: string
+          example: "795535"
+        system_version:
+          type: string
+          example: "5.10.02 (Early Access)"
+        timezone:
+          type: string
+          example: "한국 (GMT+09:00)"
+
+    QobuzDownloadRequest:
+      type: object
+      properties:
+        tracks:
+          type: array
+          items:
+            $ref: '#/components/schemas/QobuzTrack'
+
+    QobuzTrack:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 7395
+        title:
+          type: string
+          example: "Wanna Be Startin' Somethin'"
+        album:
+          type: object
+          properties:
+            id:
+              type: string
+              example: "0074643811224"
+            title:
+              type: string
+              example: "Thriller"
+            downloadable_format_ids:
+              type: array
+              items:
+                type: integer
+              example: [55]
+            image:
+              type: object
+              properties:
+                large:
+                  type: string
+                  example: "https://static.qobuz.com/images/covers/24/12/0074643811224_600.jpg"
+        artist:
+          type: object
+          properties:
+            name:
+              type: string
+              example: "Michael Jackson"
+        duration:
+          type: integer
+          example: 363
+        hires:
+          type: boolean
+          example: true
+        maximum_sampling_rate:
+          type: number
+          example: 176.4
+        performers:
+          type: string
+          example: "Michael Jackson, Vocals - Quincy Jones, Producer"
+
+    QobuzDownloadState:
+      type: object
+      properties:
+        trackId:
+          type: integer
+          description: "트랙 고유 ID"
+          example: 9140024
+        title:
+          type: string
+          description: "곡 제목"
+          example: "Give Life Back to Music"
+        artist:
+          type: string
+          description: "아티스트명"
+          example: "Daft Punk"
+        release:
+          type: string
+          description: "앨범명"
+          example: "Random Access Memories"
+        size:
+          type: integer
+          description: "파일 크기 (Byte)"
+          example: 96334563
+        progress:
+          type: integer
+          description: "다운로드 진행률 (%)"
+          example: 100
+        state:
+          type: string
+          description: "다운로드 상태 (예: FINISHED, DOWNLOADING)"
+          example: "FINISHED"
+
+    SymphonySubtitleData:
+      type: object
+      properties:
+        currentSubtitle:
+          type: string
+          description: "현재 설정된 자막 언어"
+          example: "ko"
+        subtitle:
+          type: array
+          description: "선택 가능한 자막 언어 목록"
+          items:
+            type: string
+          example: ["off", "ko"]
+
+    SymphonyDownloadedContent:
+      type: object
+      properties:
+        contentId:
+          type: integer
+          description: "콘텐츠 고유 ID"
+          example: 32
+        expiredAt:
+          type: integer
+          description: "콘텐츠 만료 시간 (Epoch MS)"
+          example: 1780104870749
+    
+    KugouSetQueueRequest:
+      type: object
+      properties:
+        playType:
+          type: integer
+          description: "재생 타입 ID"
+          example: 15
+        shuffle:
+          type: integer
+          description: "셔플 여부 (0: Off, 1: On)"
+          example: 0
+        currentPosition:
+          type: integer
+          description: "현재 재생 시작 위치 (Index)"
+          example: 0
+        roseToken:
+          type: string
+          description: "기기 인증 토큰"
+          example: "ROSE795535ABCD"
+        tracks:
+          type: array
+          items:
+            $ref: '#/components/schemas/KugouTrack'
+
+    KugouTrack:
+      type: object
+      properties:
+        song_id:
+          type: string
+          example: "763443713"
+        song_name:
+          type: string
+          example: "我的秘密 (G.E.M.重生版)"
+        singer_name_bak:
+          type: string
+          example: "G.E.M. 邓紫棋"
+        singers:
+          type: array
+          items:
+            type: object
+            properties:
+              singer_id:
+                type: string
+                example: "4490"
+              singer_name:
+                type: string
+                example: "G.E.M. 邓紫棋"
+              singer_img:
+                type: string
+                example: "http://singerimg.kugou.com/uploadpic/softhead/480/20230420/20230420151859729808.jpg"
+        album_id:
+          type: string
+          example: "150256944"
+        album_name:
+          type: string
+          example: "I AM GLORIA"
+        album_img:
+          type: string
+          example: "http://imge.kugou.com/stdmusic/480/20250611/20250611181412162456.jpg"
+        duration:
+          type: integer
+          description: "재생 시간 (ms)"
+          example: 249782
+        playable_code:
+          type: integer
+          example: 0
+        support_quality:
+          type: array
+          items:
+            type: string
+          example: ["tape_192khz", "tape_96khz", "flac"]
+        quality_label:
+          type: string
+          example: "tape_192khz"
+
+    KugouPlaylistData:
+      type: object
+      properties:
+        total:
+          type: integer
+          description: "전체 플레이리스트 개수"
+          example: 12
+        arr:
+          type: array
+          description: "플레이리스트 목록 배열"
+          items:
+            $ref: '#/components/schemas/KugouPlaylist'
+
+    KugouPlaylist:
+      type: object
+      properties:
+        playlist_id:
+          type: string
+          description: "플레이리스트 고유 ID"
+          example: "collection_3_2441989388_2_0"
+        playlist_extra_id:
+          type: string
+          description: "플레이리스트 확장 ID"
+          example: "2"
+        playlist_name:
+          type: string
+          description: "플레이리스트 이름"
+          example: "我喜欢"
+        pic:
+          type: string
+          description: "플레이리스트 커버 이미지 URL"
+          example: "http://imge.kugou.com/stdmusic/480/20250603/20250603170531183809.jpg"
+
+    VlcSubOptionData:
+      type: object
+      properties:
+        position:
+          type: integer
+          description: "현재 선택된 인코딩 옵션의 인덱스"
+          example: 3
+        arr:
+          type: array
+          description: "지원하는 자막 인코딩 방식 목록"
+          items:
+            type: string
+          example:
+            - "Default (Windows-1252)"
+            - "Universal (UTF-8)"
+            - "Universal (UTF-16)"
+            - "Universal (big endian UTF-16)"
+            - "Korean (EUC-KR/CP949)"
+
+    RoseTubeAudioTrackData:
+      type: object
+      properties:
+        lang:
+          type: string
+          description: "현재 선택된 오디오 트랙 언어 코드"
+          example: "ase"
+        audioTrack:
+          type: array
+          description: "선택 가능한 오디오 트랙 언어 코드 목록 (목록이 없거나 비어있는 경우 클라이언트 UI에서 오디오 트랙 선택 아이콘 숨김 처리 필요)"
+          items:
+            type: string
+          example:
+            - "ase"
+            - "zh"
+            - "th"
+            - "ko"
+            - "ja"
+            - "fil"
+            - "en"
