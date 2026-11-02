@@ -703,19 +703,46 @@ paths:
     post:
       tags:
         - "Youtube"
-      summary: "YouTube 영상 재생"
-      description: "지정된 YouTube 비디오 ID를 전달하여 영상을 재생합니다."
+      summary: "YouTube 단건 영상 및 플레이리스트 재생"
+      description: "단건 영상 재생 시에는 `id`만 전달하고, 플레이리스트 재생 시에는 `url`과 `shuffle` 여부를 함께 전달하여 재생합니다."
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                id:
-                  type: string
-                  description: "재생할 YouTube 영상 고유 ID"
-                  example: "Pksr9T8m_aA"
+              oneOf:
+                - type: object
+                  title: "단건 영상 재생"
+                  required:
+                    - id
+                  properties:
+                    id:
+                      type: string
+                      description: "재생할 YouTube 영상 고유 ID"
+                      example: "Pksr9T8m_aA"
+                - type: object
+                  title: "플레이리스트 재생"
+                  required:
+                    - url
+                  properties:
+                    url:
+                      type: string
+                      description: "재생할 YouTube 플레이리스트 URL"
+                      example: "https://youtube.com/playlist?list=LL"
+                    shuffle:
+                      type: boolean
+                      description: "셔플 재생 여부 (셔플 재생 선택 시 true)"
+                      example: true
+            examples:
+              singleVideo:
+                summary: "단건 영상 재생"
+                value:
+                  id: "Pksr9T8m_aA"
+              playlistPlay:
+                summary: "플레이리스트 재생 (셔플)"
+                value:
+                  url: "https://youtube.com/playlist?list=LL"
+                  shuffle: true
       responses:
         '200':
           description: "명령 전달 성공"
